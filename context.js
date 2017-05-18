@@ -2,29 +2,19 @@ class Context{
   constructor() {
     this.methods = {};
   }
-  addMethod(name, method){
+  addMethod(name, method, template){
     if(!this.methods[name]){
       this.methods[name] = {};
     }
-    if(!this.methods[name].template){
-      this.methods[name].template = {
-        render:(p)=>{
-          return p.res;
-        }
-      };
+    if(template){
+      this.methods[name].template = template;
     }
     this.methods[name].method = method;
   }
-  addTemplate(name, template){
-    if(!this.methods[name]){
-      this.methods[name] = {};
-    }
-    if(!this.methods[name].method){
-      this.methods[name].method = (e,a,c)=>{
-        c(null);
-      };
-    }
-    this.methods[name].template = template;
+  addMethods(arr){
+    arr.foreach((method)=>{
+      addMethod(method.name, method.method, method.template);
+    });
   }
   get(name){
     return this.methods[name];

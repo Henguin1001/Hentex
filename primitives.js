@@ -1,4 +1,5 @@
-var Context = require('./context.js');
+var Context = require('./context.js'),
+  twig = require('twig').twig;
 var primitiveCtx = new Context();
 
 primitiveCtx.addMethod('string', function(children, parameters, cb){
@@ -13,9 +14,12 @@ primitiveCtx.addMethod('json', function(children, parameters, cb){
   }
   cb(null, JSON.parse(string));
 });
-primitiveCtx.addMethod('concat', function(children, parameters, cb){
-  if(Array.isArray(children)){
-    cb(null, children.map((c)=>c.toString()).join(''));
+primitiveCtx.addMethod('method', function(children, parameters, cb){
+  if(parameters.attr.name){
+    primitiveCtx.addMethod(parameters.attr.name, (children, parameters, cb)=>{
+      cb(null, parameters);
+    }, twig({data:parameters.element.text()}));
+    cb(null, "");
   }
 });
 module.exports = primitiveCtx;

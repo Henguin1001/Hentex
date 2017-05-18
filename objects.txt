@@ -1,0 +1,12 @@
+Node:
+  element, context, $
+  evaluate(void): Promise
+  build(children, cb): Void
+
+Context:
+  addMethod(name, method, template)
+  addMethods(arr)
+
+Interpreter
+  string, context
+  evaluate(void):promise

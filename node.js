@@ -47,12 +47,18 @@ class Node {
       id:this.attr.id,
       self:this
     };
-    type.method(children, parameters, function(err, res){
+    type.method.call(null, children, parameters, function(err, res){
       if(err) cb(err)
       else {
         parameters.res = res;
-        var output= type.template.render(parameters);
-        cb(null, output);
+        if(type.template){
+          var output= type.template.render(parameters);
+          parameters.element.text(output);
+          cb(null, output);
+        } else {
+          parameters.element.text(res);
+          cb(null, res);
+        }
       }
     });
   }
