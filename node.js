@@ -15,7 +15,7 @@ class Node {
   initializeChild(element, ctx, $){
     return new Node($(element), ctx, $);
   }
-  evaluate(){
+  evaluate(globals){
     var build = this.build, children = this.children, scope = this.scope;
     return new Promise(function (fulfill, reject){
       var childpromise = children.map((child)=>{
@@ -23,7 +23,7 @@ class Node {
       });
       Promise.all(childpromise).then(function(resolved) {
         try {
-          build.call(scope, resolved, function(err, res){
+          build.call(scope, resolved, globals, function(err, res){
             if(err){
               reject(err);
             } else {
@@ -38,14 +38,15 @@ class Node {
       });
     });
   }
-  build(children, cb){
+  build(children, globals, cb){
     var type = this.ctx.get(this.name);
     var parameters = {
       children:children,
       attr:this.attr,
       element:this.element,
       id:this.attr.id,
-      self:this
+      self:this,
+      globals:globals
     };
     type.method.call(null, children, parameters, function(err, res){
       if(err) cb(err)

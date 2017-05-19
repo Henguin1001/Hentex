@@ -1,0 +1,3 @@
+<method name="read">
+  File Contents: {{res}} END
+</method>

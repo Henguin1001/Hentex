@@ -1,22 +1,17 @@
 var Interpreter = require('./interpreter.js'),
   Context = require('./context.js'),
-  primitiveCtx = require('./primitives.js');
+  primitiveCtx = require('./primitives.js'),
+  Package = require('./package.js'),
+  sample = require('./sample.js');
 
-// var string = '<json>{"name":"Henry"}</json>';
-// var string = '<json><string>{"Hello":</string><string>"World"}</string></json>';
-// var string = '<string>{"name":"Henry"}</string>';
-var string = '<method name="test"><string>test</string>Hello</method>';
-var string2 = '<test><test>';
-
-var interpreter = new Interpreter(string, primitiveCtx);
-interpreter.evaluate().then(function (value) {
-  // console.log(primitiveCtx);
-  var interpreter2 = new Interpreter(string2, primitiveCtx);
-  interpreter2.evaluate().then(function (value) {
-    console.log(value);
-  }, function (err) {
-    console.error(err.stack);
+var string = '<read src="./objects.txt"></read>';
+sample.chain(primitiveCtx).then(function(context){
+  var interpreter = new Interpreter(string, context);
+  interpreter.evaluate().then(function(result){
+    console.log(result);
+  }, function(err){
+    console.error(err);
   });
-}, function (err) {
-  console.error(err.stack);
+}, function(err) {
+  console.error(err);
 });
