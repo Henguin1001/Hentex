@@ -1,5 +1,5 @@
 var fs = require('fs'),
-  Package = require('./package.js');
+  Package = require('./src/package.js');
 var sample = new Package({
     read:function(child, param, cb){
       if(param.attr.src){

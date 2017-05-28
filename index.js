@@ -1,7 +1,7 @@
-var Interpreter = require('./interpreter.js'),
-  Context = require('./context.js'),
-  primitiveCtx = require('./primitives.js'),
-  Package = require('./package.js'),
+var Interpreter = require('./src/interpreter.js'),
+  Context = require('./src/context.js'),
+  primitiveCtx = require('./src/primitives.js'),
+  Package = require('./src/package.js'),
   sample = require('./sample.js');
 
 var string = '<read src="./objects.txt"></read><test/>';

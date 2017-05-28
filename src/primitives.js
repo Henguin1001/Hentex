@@ -4,7 +4,7 @@ var Context = require('./context.js'),
 var primitiveCtx = new Context();
 
 primitiveCtx.addMethod('string', function(children, parameters, cb){
-  cb(null, parameters.element.text());
+  cb(null, parameters.element.html());
 });
 primitiveCtx.addMethod('json', function(children, parameters, cb){
   var string = "";

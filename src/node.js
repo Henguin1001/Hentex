@@ -8,9 +8,13 @@ class Node {
     this.scope = this;
     this.ctx = ctx;
     var initializeChild = this.initializeChild;
-    this.children = element.children().map(function(){
-      return initializeChild(this, ctx, $);
-    }).toArray();
+    if(this.name != 'string'){
+      this.children = element.children().map(function(){
+        return initializeChild(this, ctx, $);
+      }).toArray();
+    } else {
+      this.children = [];
+    }
   }
   initializeChild(element, ctx, $){
     return new Node($(element), ctx, $);
