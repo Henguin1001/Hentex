@@ -1,3 +1,6 @@
 <method name="read">
   File Contents: {{res}} END
 </method>
+<method name="test">
+  <read src="./package.json" />
+</method>
