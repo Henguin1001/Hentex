@@ -1,17 +1,31 @@
 var Interpreter = require('./src/interpreter.js'),
-  Context = require('./src/context.js'),
-  primitiveCtx = require('./src/primitives.js'),
-  Package = require('./src/package.js'),
-  sample = require('./sample.js');
+  primitive_ctx = require('./src/primitives.js'),
+  Package = require('./src/package.js');
 
-var string = '<read src="./objects.txt"></read><test/>';
-sample.chain(primitiveCtx).then(function(context){
-  var interpreter = new Interpreter(string, context);
-  interpreter.evaluate().then(function(result){
-    console.log(result);
-  }, function(err){
-    console.error(err);
-  });
-}, function(err) {
-  console.error(err);
-});
+class Compiler {
+  constructor(ctx) {
+    if(ctx){
+      this.ctx = ctx;
+    } else {
+      this.ctx = primitive_ctx;
+    }
+  }
+  compile(string, globals){
+    var interpreter = new Interpreter(string, this.ctx);
+    return interpreter.evaluate(globals||{});
+  }
+  extend(pack){
+    var temp = new Package(pack);
+    temp.chain(this.ctx);
+  }
+}
+module.exports = Compiler;
+
+// var sample = require('./sample.js');
+// var test = new Compiler();
+// test.extend(sample);
+// test.compile('<read src="./package.json"/>').then((res)=>{
+//   console.log(res);
+// },(err)=>{
+//   console.error(err);
+// } );
