@@ -1,31 +1,24 @@
-var Interpreter = require('./src/interpreter.js'),
-  primitive_ctx = require('./src/primitives.js'),
-  Package = require('./src/package.js');
+var cheerio = require('cheerio'),
+  Node = require('./tree.js');
 
 class Compiler {
-  constructor(ctx) {
-    if(ctx){
-      this.ctx = ctx;
-    } else {
-      this.ctx = primitive_ctx;
+  constructor() {
+    this.context = {};
+  }
+  compile(template){
+    if(template.length > 0){
+      var $ = cheerio.load(template);
+      return new Node($(':root'), this.context, $);
     }
   }
-  compile(string, globals){
-    var interpreter = new Interpreter(string, this.ctx);
-    return interpreter.evaluate(globals||{});
+  render(template, globals){
+    var tree = this.compile(template);
+    if(tree){
+      return tree.evaluate(globals);
+    }
   }
-  extend(pack){
-    var temp = new Package(pack);
-    temp.chain(this.ctx);
+  extend(name, obj){
+    this.context[name] = obj;
   }
 }
 module.exports = Compiler;
-
-// var sample = require('./sample.js');
-// var test = new Compiler();
-// test.extend(sample);
-// test.compile('<read src="./package.json"/>').then((res)=>{
-//   console.log(res);
-// },(err)=>{
-//   console.error(err);
-// } );

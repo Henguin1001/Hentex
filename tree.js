@@ -23,7 +23,7 @@ class Node {
     var build = this.build, children = this.children, scope = this.scope;
     return new Promise(function (fulfill, reject){
       var childpromise = children.map((child)=>{
-        return child.evaluate();
+        return child.evaluate(globals);
       });
       Promise.all(childpromise).then(function(resolved) {
         try {
@@ -43,7 +43,8 @@ class Node {
     });
   }
   build(children, globals, cb){
-    var type = this.ctx.get(this.name);
+    // console.log(globals);
+    var type = this.ctx[this.name];
     var parameters = {
       children:children,
       attr:this.attr,
