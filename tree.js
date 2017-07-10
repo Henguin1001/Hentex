@@ -6,6 +6,7 @@ class Node {
     this.attr = element.get(0).attribs;
     this.isLeaf = element.children().length == 0;
     this.scope = this;
+    this.$ = $;
     this.ctx = ctx;
     var initializeChild = this.initializeChild;
     if(this.name != 'string'){
@@ -47,13 +48,15 @@ class Node {
     var type = this.ctx[this.name];
     var parameters = {
       children:children,
+      leaf:this.isLeaf,
       attr:this.attr,
       element:this.element,
       id:this.attr.id,
       self:this,
       globals:globals
     };
-    type.method.call(null, children, parameters, function(err, res){
+    // console.log(this.element.get(0));
+    type.method.call({name:"test"}, children, parameters, this.$, function(err, res){
       if(err) cb(err)
       else {
         parameters.res = res;
