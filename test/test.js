@@ -9,7 +9,7 @@ describe('Compiler', function() {
     it('should add new method to context and render', function() {
       var c = new Compiler();
       c.extend("test",{
-        method:(c, p, $, cb)=>{
+        method:($, e,p, cb)=>{
             cb(null, "test");
         }
       });
@@ -19,7 +19,7 @@ describe('Compiler', function() {
     it('should resolve arguments', function() {
       var c = new Compiler();
       c.extend("test",{
-        method:(c, p, $, cb)=>{
+        method:($, e, p, cb)=>{
             cb(null, p.attr.arg);
         }
       });
@@ -29,22 +29,32 @@ describe('Compiler', function() {
     it('should resolve globals', function() {
       var c = new Compiler();
       c.extend("test",{
-        method:(c, p, $, cb)=>{
+        method:($, e,p, cb)=>{
             cb(null, p.globals.test);
         }
       });
       var res = c.render('<test/>',{test:"globalvar"});
       return res.should.eventually.equal('globalvar');
     });
+    it('should resolve jquery scope', function() {
+      var c = new Compiler();
+      c.extend("test",{
+        method:function($, e,p, cb){
+            cb(null, $(this).data('foo'));
+        }
+      });
+      var res = c.render('<test data-foo="bar"/>',{});
+      return res.should.eventually.equal('bar');
+    });
     it('should allow cascading methods', function() {
       var c = new Compiler();
       c.extend("foo",{
-        method:(c, p, $, cb)=>{
-          cb(null, p.attr.arg+c[0]);
+        method:($, e, p, cb)=>{
+          cb(null, p.attr.arg+p.children[0]);
         }
       });
       c.extend("bar",{
-        method:(c, p, $, cb)=>{
+        method:($, e, p, cb)=>{
             cb(null, p.globals.test);
         }
       });

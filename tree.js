@@ -44,7 +44,6 @@ class Node {
     });
   }
   build(children, globals, cb){
-    // console.log(globals);
     var type = this.ctx[this.name];
     var parameters = {
       children:children,
@@ -53,10 +52,10 @@ class Node {
       element:this.element,
       id:this.attr.id,
       self:this,
+      $:this.$,
       globals:globals
     };
-    // console.log(this.element.get(0));
-    type.method.call({name:"test"}, children, parameters, this.$, function(err, res){
+    type.method.call(this.element, this.$, this.element, parameters, function(err, res){
       if(err) cb(err)
       else {
         parameters.res = res;
@@ -65,7 +64,7 @@ class Node {
           parameters.element.text(output);
           cb(null, output);
         } else {
-          parameters.element.text(res);
+          parameters.element.data(res);
           cb(null, res);
         }
       }
