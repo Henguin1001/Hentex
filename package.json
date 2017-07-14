@@ -11,9 +11,6 @@
   "dependencies": {
     "async": "^2.3.0",
     "cheerio": "^0.22.0",
-    "co": "^4.6.0",
-    "hot-formula-parser": "^2.0.2",
-    "mathjs": "^3.11.4",
     "promise": "^7.1.1",
     "suspend": "^0.7.0",
     "twig": "^1.10.4"

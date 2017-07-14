@@ -5,7 +5,7 @@ chai.should();
 var util = require('util');
 var Compiler = require('../index.js');
 describe('Compiler', function() {
-  describe('#extend() and #render()', function() {
+  describe('Extending Methods', function() {
     it('should add new method to context and render', function() {
       var c = new Compiler();
       c.extend("test",{
@@ -39,7 +39,7 @@ describe('Compiler', function() {
     it('should resolve jquery scope', function() {
       var c = new Compiler();
       c.extend("test",{
-        method:function($, e,p, cb){
+        method:function($, cb){
             cb(null, $(this).data('foo'));
         }
       });
@@ -60,6 +60,34 @@ describe('Compiler', function() {
       });
       var res = c.render('<foo arg="myarg"><bar/></foo>',{test:"globalvar"});
       return res.should.eventually.equal('myargglobalvar');
+    });
+  });
+  describe('Extending Templates', function() {
+    it('should render a plain template', function() {
+      var c = new Compiler();
+      c.extend("foo",{
+        method:function(cb){
+          cb(null, "testdata");
+        },
+        template:{
+          render:function(parameters){
+            return parameters.data;
+          }
+        }
+      });
+      var res = c.render('<foo/>');
+      return res.should.eventually.equal('testdata');
+    });
+    it('should render twig templates', function() {
+      var c = new Compiler();
+      c.extend("foo",{
+        method:function(cb){
+          cb(null, "testdata");
+        },
+        template:"{{data}}"
+      });
+      var res = c.render('<foo/>');
+      return res.should.eventually.equal('testdata');
     });
   });
 });

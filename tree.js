@@ -64,7 +64,7 @@ class Node {
     tools.call_optional_parameters(method_type.method, this.element, [this.$, this.element, parameters], function(err, method_data){
       if(err) cb(err)
       else {
-        parameters.method_data = method_data;
+        parameters.data = method_data;
         parameters.element.data(method_data);
         if(method_type.template){
           var template_output = method_type.template.render(parameters);

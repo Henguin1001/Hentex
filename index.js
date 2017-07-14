@@ -1,5 +1,6 @@
 var cheerio = require('cheerio'),
-  Node = require('./tree.js');
+  Node = require('./tree.js'),
+  twig = require('twig').twig;
 
 class Compiler {
   constructor() {
@@ -11,7 +12,7 @@ class Compiler {
       return new Node($(':root'), this.context, $);
     }
   }
-  render(template, globals){
+  render(template, globals = {}){
     var tree = this.compile(template);
     if(tree){
       return tree.evaluate(globals);
@@ -19,6 +20,9 @@ class Compiler {
   }
   extend(name, obj){
     this.context[name] = obj;
+    if(obj.template &&  typeof obj.template === 'string'){
+      this.context[name].template = twig({data:obj.template});
+    }
   }
 }
 module.exports = Compiler;
