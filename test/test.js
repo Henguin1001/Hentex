@@ -9,7 +9,7 @@ describe('Compiler', function() {
     it('should add new method to context and render', function() {
       var c = new Compiler();
       c.extend("test",{
-        method:($, e,p, cb)=>{
+        method:(cb)=>{
             cb(null, "test");
         }
       });
@@ -20,7 +20,7 @@ describe('Compiler', function() {
       var c = new Compiler();
       c.extend("test",{
         method:($, e, p, cb)=>{
-            cb(null, p.attr.arg);
+            cb(null, p.attributes.arg);
         }
       });
       var res = c.render('<test arg="myarg"/>',{});
@@ -29,7 +29,7 @@ describe('Compiler', function() {
     it('should resolve globals', function() {
       var c = new Compiler();
       c.extend("test",{
-        method:($, e,p, cb)=>{
+        method:($, e, p, cb)=>{
             cb(null, p.globals.test);
         }
       });
@@ -49,8 +49,8 @@ describe('Compiler', function() {
     it('should allow cascading methods', function() {
       var c = new Compiler();
       c.extend("foo",{
-        method:($, e, p, cb)=>{
-          cb(null, p.attr.arg+p.children[0]);
+        method:function($, e, p, cb){
+          cb(null, p.attributes.arg+$(this).children().text());
         }
       });
       c.extend("bar",{
