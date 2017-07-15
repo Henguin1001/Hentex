@@ -4,6 +4,7 @@ chai.use(chaiAsPromised);
 chai.should();
 var util = require('util');
 var Compiler = require('../index.js');
+
 describe('Compiler', function() {
   describe('Extending Methods', function() {
     it('should add new method to context and render', function() {
@@ -61,6 +62,55 @@ describe('Compiler', function() {
       var res = c.render('<foo arg="myarg"><bar/></foo>',{test:"globalvar"});
       return res.should.eventually.equal('myargglobalvar');
     });
+    it('should allow multple root elements', function() {
+      var c = new Compiler();
+      c.extend("foo",{
+        method:function($, e, p, cb){
+          cb(null, "foo");
+        }
+      });
+      c.extend("bar",{
+        method:function($, e, p, cb){
+            cb(null, "bar");
+        }
+      });
+      var res = c.render('<foo/><bar/>');
+      return res.should.eventually.equal('foobar');
+    });
+    it('async functions should go in order', function() {
+      var c = new Compiler();
+      c.extend("foo",{
+        method:function($, e, p, cb){
+          cb(null, "foo"+$(this).text());
+        }
+      });
+      c.extend("bar",{
+        method:function($, e, p, cb){
+          setTimeout(function () {
+            cb(null, "bar");
+          }, 100);
+        }
+      });
+      var res = c.render('<foo><bar/></foo>');
+      return res.should.eventually.equal('foobar');
+    });
+    it('async functions should go in order', function() {
+      var c = new Compiler();
+      c.extend("foo",{
+        method:function($, e, p, cb){
+          cb(null, "foo");
+        }
+      });
+      c.extend("bar",{
+        method:function($, e, p, cb){
+          setTimeout(function () {
+            cb(null, "bar"+$(e).text());
+          }, 100);
+        }
+      });
+      var res = c.render('<bar><foo/></bar>');
+      return res.should.eventually.equal('barfoo');
+    });
   });
   describe('Extending Templates', function() {
     it('should render a plain template', function() {
@@ -81,6 +131,34 @@ describe('Compiler', function() {
     it('should render twig templates', function() {
       var c = new Compiler();
       c.extend("foo",{
+        method:function(cb){
+          cb(null, "testdata");
+        },
+        template:"{{data}}"
+      });
+      var res = c.render('<foo/>');
+      return res.should.eventually.equal('testdata');
+    });
+    it('should update templates', function() {
+      var c = new Compiler();
+      c.update("foo",{
+        method:function(cb){
+          cb(null, "testdata");
+        },
+        template:"{{data}}"
+      });
+      var res = c.render('<foo/>');
+      return res.should.eventually.equal('testdata');
+    });
+    it('should update existing templates', function() {
+      var c = new Compiler();
+      c.extend("foo",{
+        method:function(cb){
+          cb(null, "testdata");
+        },
+        template:"{{data ~ 'words'}}"
+      });
+      c.update("foo",{
         method:function(cb){
           cb(null, "testdata");
         },
