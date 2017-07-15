@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "async": "^2.3.0",
+    "bluebird": "^3.5.0",
     "cheerio": "^0.22.0",
     "promise": "^7.1.1",
+    "promise-each": "^2.2.0",
     "suspend": "^0.7.0",
     "twig": "^1.10.4"
   },

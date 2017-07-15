@@ -1,4 +1,9 @@
 <template name="test">
-  value: {{attributes.value}}
+    {{element}}
 </template>
-<test value="hello"/>
+<template name="bar">
+  bar:{{attributes.value}}
+</template>
+<bar value="hello"/>
+<bar value="world"/>
+<bar value="te"/>

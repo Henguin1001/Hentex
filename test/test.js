@@ -66,7 +66,7 @@ describe('Compiler', function() {
       var c = new Compiler();
       c.extend("foo",{
         method:function($, e, p, cb){
-          cb(null, "foo");
+          cb(null, "foo"+$(this).text());
         }
       });
       c.extend("bar",{
@@ -76,6 +76,21 @@ describe('Compiler', function() {
       });
       var res = c.render('<foo/><bar/>');
       return res.should.eventually.equal('foobar');
+    });
+    it('should allow multple root elements', function() {
+      var c = new Compiler();
+      c.extend("foo",{
+        method:function($, e, p, cb){
+          cb(null, "foo"+$(this).text());
+        }
+      });
+      c.extend("bar",{
+        method:function($, e, p, cb){
+            cb(null, "bar");
+        }
+      });
+      var res = c.render('<foo><foo/><bar/></foo><bar/>');
+      return res.should.eventually.equal('foofoobarbar');
     });
     it('async functions should go in order', function() {
       var c = new Compiler();
@@ -110,6 +125,42 @@ describe('Compiler', function() {
       });
       var res = c.render('<bar><foo/></bar>');
       return res.should.eventually.equal('barfoo');
+    });
+    it('multiple root functions should go in order', function() {
+      var c = new Compiler();
+
+      c.extend("foo",{
+        method:function($, e, p, cb){
+          cb(null, "foo"+$(this).text());
+        }
+      });
+      c.extend("bar",{
+        method:function($, e, p, cb){
+          setTimeout(function () {
+            cb(null, "bar"+$(e).text());
+          }, 100);
+        }
+      });
+      var res = c.render('<bar/><foo/>');
+      return res.should.eventually.equal('barfoo');
+    });
+    it('multiple root functions should go in order', function() {
+      var c = new Compiler();
+
+      c.extend("foo",{
+        method:function($, e, p, cb){
+          cb(null, "foo"+$(this).text());
+        }
+      });
+      c.extend("bar",{
+        method:function($, e, p, cb){
+          setTimeout(function () {
+            cb(null, "bar"+$(e).text());
+          }, 100);
+        }
+      });
+      var res = c.render('<foo/><bar/>');
+      return res.should.eventually.equal('foobar');
     });
   });
   describe('Extending Templates', function() {
