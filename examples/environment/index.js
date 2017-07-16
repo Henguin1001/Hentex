@@ -18,7 +18,6 @@ c.extend("template", {
 });
 c.extend("bar", {
   method:function($, e, p, cb){
-    console.log("Bar Called with " + p.attributes.value);
     cb(null, "");
   }
 });

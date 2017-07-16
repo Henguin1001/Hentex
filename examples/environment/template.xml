@@ -1,9 +1,13 @@
-<template name="test">
-    {{element}}
-</template>
 <template name="bar">
   bar:{{attributes.value}}
 </template>
-<bar value="hello"/>
-<bar value="world"/>
-<bar value="te"/>
+<template name="test">
+  {% for child in element.children().get() %}
+    {{ j(child).text() }}
+  {% endfor %}
+</template>
+<test>
+  <bar value="hello"/>
+  <bar value="world"/>
+  <bar value="te"/>
+</test>

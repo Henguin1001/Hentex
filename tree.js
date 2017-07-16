@@ -32,7 +32,8 @@ class Node {
       attributes:element.get(0).attribs,
       leaf: element.children().length == 0,
       element:element,
-      $:$
+      $:$,
+      j:$
     };
     this.name = this.info.name;
     this.method = this.ctx[this.name];
@@ -75,6 +76,7 @@ class Node {
         parameters.element.data(method_data);
         if(method_type.template){
           var template_output = method_type.template.render(parameters);
+          parameters.element.empty();
           parameters.element.text(template_output);
           cb(null, template_output);
         } else {

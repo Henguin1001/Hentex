@@ -16,7 +16,7 @@ class Compiler {
   }
   compile(template){
     if(template.length > 0){
-      var $ = cheerio.load(this.capsule(template));
+      var $ = cheerio.load(this.capsule(template), {xmlMode:true});
       return new Node($(':root'), this.context, $);
     }
   }
@@ -31,7 +31,7 @@ class Compiler {
       // });
   }
   extend(name, obj){
-    this.context[name] = obj;
+    this.context[name] = Object.assign({method:(cb)=>{cb()}}, obj);
     if(obj.template &&  typeof obj.template === 'string'){
       this.context[name].template = twig({data:obj.template});
     }
