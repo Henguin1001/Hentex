@@ -219,4 +219,16 @@ describe('Compiler', function() {
       return res.should.eventually.equal('testdata');
     });
   });
+  describe('Rendering Files', function() {
+    it('should load a file',function(){
+      var c = new Compiler();
+      c.extend("foo",{
+        method:function(cb){
+          cb(null, "testdata");
+        },
+      });
+      var res = c.renderFile('./test/template.xml');
+      return res.should.eventually.equal('testdata\n');
+    });
+  });
 });

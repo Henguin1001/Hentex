@@ -1,6 +1,6 @@
 var cheerio = require('cheerio-iterable'),
   Node = require('./tree.js'),
-  twig = require('./lib/twig.js').twig,
+  twig = require('../lib/twig.js').twig,
   Promise = require('bluebird'),
   fs = require('fs');
 
