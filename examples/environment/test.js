@@ -1,6 +1,7 @@
-var cheerio = require('cheerio'),
-  fs = require('fs');
-// var $ = cheerio.load(fs.readFileSync('./template.xml', 'UTF8'));
-var $ = cheerio.load('<div><bar value="hello"/><bar value="world"/><bar value="te"/></div>', {xmlMode:true});
+var twig = require('twig').twig;
 
-console.log($(':root').children());
+var template = twig({data:"{% for e in arr %}{{loop.index}}{{e}}{% endfor %}"});
+
+var test = [1,2,3,4][Symbol.iterator]();
+console.log([...test]);
+// console.log(template.render({arr:myIterable}));

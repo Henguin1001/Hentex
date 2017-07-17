@@ -16,8 +16,11 @@ c.extend("template", {
     return '';
   }}
 });
-c.extend("bar", {
+c.extend("test", {
   method:function($, e, p, cb){
+    for (test of e.children()) {
+      console.log(test);
+    }
     cb(null, "");
   }
 });

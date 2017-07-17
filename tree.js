@@ -1,5 +1,6 @@
 var Promise = require('bluebird'),
   tools = require('./tools.js');
+
 class Node {
   constructor(element, ctx, $){
     this.element = element;
@@ -12,9 +13,9 @@ class Node {
     // Only compile further if the element is not a string
     // or has the attribute block
     if(this.name != 'string' && !this.info.attributes.block){
-      this.children = element.children().map(function(){
-        return initializeChild(this, ctx, $);
-      }).toArray();
+      this.children = element.children().map(function(e){
+        return initializeChild(e, ctx, $);
+      });
     } else {
       this.children = [];
       this.info.leaf = true;

@@ -2,8 +2,9 @@
   bar:{{attributes.value}}
 </template>
 <template name="test">
-  {% for child in element.children().get() %}
-    {{ j(child).text() }}
+  {# {{element.html()}} #}
+  {% for child in element.children() %}
+    Test{{loop.index}}
   {% endfor %}
 </template>
 <test>

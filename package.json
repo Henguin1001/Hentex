@@ -12,6 +12,7 @@
     "async": "^2.3.0",
     "bluebird": "^3.5.0",
     "cheerio": "^0.22.0",
+    "cheerio-iterable": "^1.0.0",
     "promise": "^7.1.1",
     "promise-each": "^2.2.0",
     "suspend": "^0.7.0",
