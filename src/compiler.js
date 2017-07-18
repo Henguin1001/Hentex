@@ -4,8 +4,12 @@ var cheerio = require('cheerio-iterable'),
 
 module.exports = function(mark){
   class Compiler {
-    constructor() {
-      this.context = mark.functions;
+    constructor(scope) {
+      if(scope){
+        this.context = Object.assign(mark.functions, scope);
+      } else {
+        this.context = mark.functions;
+      }
     }
     compile(template){
       if(template.length > 0){
