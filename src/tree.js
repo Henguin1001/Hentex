@@ -63,10 +63,20 @@ module.exports = function(mark){
           parameters.data = method_data;
           parameters.element.data(method_data);
           if(method_type.template){
-            var template_output = method_type.template.render(parameters);
-            parameters.element.empty();
-            parameters.element.text(template_output);
-            cb(null, template_output);
+            if(method_type.template.async){
+              var template_output = method_type.template.render(parameters, function(err, template_output){
+                if(!err){
+                  parameters.element.empty();
+                  parameters.element.text(template_output);
+                  cb(null, template_output);
+                } else cb(err);
+              });
+            } else {
+              var template_output = method_type.template.render(parameters);
+              parameters.element.empty();
+              parameters.element.text(template_output);
+              cb(null, template_output);
+            }
           } else {
             if (typeof method_data === 'string'){
               parameters.element.text(method_data);

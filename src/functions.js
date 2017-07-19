@@ -17,6 +17,21 @@ module.exports = function(mark){
     },
     template:mark.utils.empty_template
   };
+  mark.functions.set = {
+    method:function($, e, p, cb){
+      if(p.attributes.key){
+        var value = "";
+        if(p.attributes.value){
+          value = p.attributes.value;
+        } else {
+          value = $(this).text();
+        }
+        $(this).parent().data('scope', Object.assign({}, data('scope'), value));
+        cb();
+      } else cb("No method name provided");
+    },
+    template:mark.utils.empty_template
+  };
   mark.functions.include = {
     method:function($, e, p, cb){
       if(p.attributes.src){
@@ -29,14 +44,14 @@ module.exports = function(mark){
   };
   mark.functions.json = {
     method:function($, e, p, cb){
-      if(p.attributes.stringify||p.attributes.encode){
+      if(p.attributes.stringify !== undefined ||p.attributes.encode !== undefined){
         try {
-            var data = JSON.stringify($(this).children().map((e)=>e.data()));
-            cb(null,data);
+            var data = mark.utils.object_from_tree($, e);
+            cb(null, JSON.stringify(data));
         } catch (e) {
           cb(e);
         }
-      } else if(p.attributes.parse||p.attributes.decode || $(this).text().length > 0){
+      } else if(p.attributes.parse !== undefined || p.attributes.decode !== undefined || $(this).text().length > 0){
         try {
           var result = JSON.parse($(this).text());
           cb(null,result);
@@ -50,29 +65,16 @@ module.exports = function(mark){
   mark.functions.csv = {
     method:function($, e, p, cb){
       if(p.attributes.src){
-        mark.lib.csv.parse_file(p.attributes.src, function(err, data){
-          if(err) cb(err);
-          else {
-            mark.lib.csv.stringify(data, function(err, string){
-              if(err) cb(err);
-              else cb(null, {data:data, string:string});
-            });
-          }
-        });
+        mark.lib.csv.parse_file(p.attributes.src, cb);
       } else if($(this).text().length > 0) {
-        mark.lib.csv.parse_string($(this).text(), function(err, data){
-          if(err) cb(err);
-          else {
-            mark.lib.csv.stringify(data, function(err, string){
-              if(err) cb(err);
-              else cb(null, {data:data, string:string});
-            });
-          }
+        mark.lib.csv.parse_string($(this).text(), function(err, res){
+          console.log(res);
+          cb(err, res);
         });
       } else cb('No body provided');
     },
-    template: {render: function(p){
-      return p.data.string;
-    }}
+    template: {render: function(p, cb){
+      mark.lib.csv.stringify(p.data, cb);
+    }, async:true}
   };
 }

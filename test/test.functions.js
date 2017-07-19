@@ -33,6 +33,13 @@ describe('Functions', function() {
       return res.should.eventually.equal('foobar');
     });
   });
+  describe('set', function(){
+    it('should parse a simple csv string', function() {
+      var c = new Compiler();
+      var res = c.render('<set key="name" value="test"/>');
+      return res.should.eventually.equal('1,2,3\n');
+    });
+  });
   describe('include', function(){
     it('should load external templates', function() {
       var c = new Compiler();
@@ -43,18 +50,24 @@ describe('Functions', function() {
   describe('json', function(){
     it('should parse data', function() {
       var c = new Compiler();
-      var res = c.render('<json>{"name":"henry"}</json>');
+      var res = c.render('<template name="print">{{element.children().data()|json_encode()}}</template><print><json decode>{"name":"henry"}</json></print>');
       return res.should.eventually.equal('{"name":"henry"}');
     });
     it('should stringify data', function() {
       var c = new Compiler();
-      var res = c.render('<json decode><json>{"name":"henry"}</json></json>');
+      // console.log("encode now");
+      var res = c.render('<json encode><json decode>{"name":"henry"}</json></json>');
       return res.should.eventually.equal('{"name":"henry"}');
     });
-    it('should stringify nultiple data', function() {
+    it('should stringify multiple data', function() {
       var c = new Compiler();
-      var res = c.render('<json><json>{"name":"henry"}</json><json>{"name":"henry"}</json></json>');
-      return res.should.eventually.equal('{"name":"henry"}');
+      var res = c.render('<json encode><json decode>{"name":"henry"}</json><json decode>{"name":"henry"}</json></json>');
+      return res.should.eventually.equal('[{"name":"henry"},{"name":"henry"}]');
+    });
+    it('should stringify multiple named data', function() {
+      var c = new Compiler();
+      var res = c.render('<json encode><json id="user1" decode>{"name":"henry"}</json><json id="user2" decode>{"name":"henry"}</json></json>');
+      return res.should.eventually.equal('{"user1":{"name":"henry"},"user2":{"name":"henry"}}');
     });
   });
   describe('CSV', function(){
@@ -62,6 +75,11 @@ describe('Functions', function() {
       var c = new Compiler();
       var res = c.render('<csv>1,2,3</csv>');
       return res.should.eventually.equal('1,2,3\n');
+    });
+    it('should parse a simple csv string', function() {
+      var c = new Compiler();
+      var res = c.render('<json encode><csv>1,2,3</csv></json>');
+      return res.should.eventually.equal('[["1","2","3"]]');
     });
   });
 });

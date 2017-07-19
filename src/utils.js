@@ -37,4 +37,40 @@ module.exports = function(mark){
       context[name].template = mark.twig({data:obj.template});
     }
   };
+  mark.utils.route_values_exist = function(values, functions, cb){
+    functions[values.findIndex((e)=>!!e)](cb);
+  };
+  mark.utils.is_number = function(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+  };
+  mark.utils.is_numeral_object = function(obj){
+    return Object.keys(obj).every(mark.utils.is_number);
+  }
+  mark.utils.convert_numeral_object = function(obj) {
+    return Object.keys(obj).map((key)=>obj[key]);
+  };
+
+  mark.utils.object_from_tree = function($, element){
+    var arr = element.children();
+    if(arr.every((e)=>e.attr('id'))){
+      var obj = {};
+      for (element of arr) {
+        obj[element.attr('id')] = element.data();
+      }
+      return obj;
+    } else {
+      var data = arr.map((e)=>{
+        var temp = e.data();
+        if(mark.utils.is_numeral_object(temp)){
+          return mark.utils.convert_numeral_object(temp);
+        } else return temp;
+      });
+      if(data.length == 1){
+        return data[0];
+      } else return data;
+    }
+
+  };
+
+
 };
