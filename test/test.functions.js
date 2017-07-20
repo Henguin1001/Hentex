@@ -33,6 +33,7 @@ describe('Functions', function() {
       return res.should.eventually.equal('foobar');
     });
   });
+
   describe('set', function(){
     it('should parse a simple csv string', function() {
       var c = new Compiler();

@@ -2,9 +2,9 @@
   "name": "markto",
   "version": "1.1.1",
   "description": "",
-  "main": "index.js",
+  "main": "markto.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha test/index.bundle.js"
   },
   "author": "Henry Troutman",
   "license": "ISC",
@@ -22,6 +22,9 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^3.4.2"
+    "mocha": "^3.4.2",
+    "mocha-webpack": "^0.7.0",
+    "webpack": "^3.3.0",
+    "webpack-node-externals": "^1.6.0"
   }
 }
