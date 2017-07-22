@@ -4,7 +4,7 @@
   "description": "",
   "main": "markto.js",
   "scripts": {
-    "test": "mocha test/index.bundle.js"
+    "test": "webpack; mocha test/index.bundle.js"
   },
   "author": "Henry Troutman",
   "license": "ISC",

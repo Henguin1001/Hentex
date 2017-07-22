@@ -35,10 +35,15 @@ describe('Functions', function() {
   });
 
   describe('set', function(){
-    it('should parse a simple csv string', function() {
+    it('should set a value in scope', function() {
       var c = new Compiler();
-      var res = c.render('<set key="name" value="test"/>');
-      return res.should.eventually.equal('1,2,3\n');
+      c.extend("scope",{
+        method:function($, e, cb){
+          cb(null, $(this).parent().data('scope'));
+        }
+      });
+      var res = c.render('<set key="name" value="test"/><scope/>');
+      return res.should.eventually.equal('{"name":"test"}');
     });
   });
   describe('include', function(){

@@ -218,6 +218,26 @@ describe('Compiler', function() {
       var res = c.render('<foo/>');
       return res.should.eventually.equal('testdata');
     });
+    it('should prevent template from running', function() {
+      var c = new Compiler();
+      c.extend("bar",{
+        method:function(cb){
+          cb(null, "bar");
+        }
+      });
+      var res = c.render('<template name="foo">{% if globals.test %}<bar/>{% endif %}</template><foo/>', {test:false});
+      return res.should.eventually.equal('');
+    });
+    it('should prevent template from running', function() {
+      var c = new Compiler();
+      c.extend("bar",{
+        method:function(cb){
+          cb(null, "bar");
+        }
+      });
+      var res = c.render('<template name="foo">{% if globals.test %}<bar/>{% endif %}</template><foo/>', {test:true});
+      return res.should.eventually.equal('bar');
+    });
   });
   describe('Rendering Files', function() {
     it('should load a file',function(){

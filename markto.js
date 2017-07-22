@@ -8184,13 +8184,14 @@ module.exports = function(mark){
   mark.functions.set = {
     method:function($, e, p, cb){
       if(p.attributes.key){
-        var value = "";
+        var value = {};
         if(p.attributes.value){
-          value = p.attributes.value;
+          value[p.attributes.key] = p.attributes.value;
         } else {
-          value = $(this).text();
+          value[p.attributes.key] = $(this).text();
         }
-        $(this).parent().data('scope', Object.assign({}, data('scope'), value));
+        var new_scope = Object.assign({}, $(this).parent().data('scope'), value);
+        $(this).parent().data('scope', new_scope);
         cb();
       } else cb("No method name provided");
     },
@@ -8232,7 +8233,6 @@ module.exports = function(mark){
         mark.lib.csv.parse_file(p.attributes.src, cb);
       } else if($(this).text().length > 0) {
         mark.lib.csv.parse_string($(this).text(), function(err, res){
-          console.log(res);
           cb(err, res);
         });
       } else cb('No body provided');
