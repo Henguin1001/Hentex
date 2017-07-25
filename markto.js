@@ -86,7 +86,7 @@ __webpack_require__(4)(mark);
 __webpack_require__(5)(mark);
 __webpack_require__(6)(mark);
 __webpack_require__(8)(mark);
-__webpack_require__(9)(mark);
+__webpack_require__(12)(mark);
 
 module.exports = mark.compiler;
 
@@ -436,6 +436,7 @@ module.exports = function(mark){
       } else cb('No stage provided');
     }
   };
+  __webpack_require__(9)(mark.functions);
 }
 
 
@@ -443,9 +444,14 @@ module.exports = function(mark){
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = function(mark){
-  mark.lib = {};
-  __webpack_require__(10)(mark.lib);
+module.exports = function(context){
+  var loadTemplate = function(resource){
+    resource.forEach((e)=>{
+      context[e[0]] = Object.assign({method:(cb)=>{cb()}}, context[e[0]], {template:e[1]});
+    });
+  }
+  loadTemplate(__webpack_require__(10));
+
 };
 
 
@@ -453,8 +459,30 @@ module.exports = function(mark){
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var twig = __webpack_require__(11).twig; module.exports = [['my_test',twig({data:'"\ntest\n"'})]];
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+module.exports = require("twig");
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = function(mark){
+  mark.lib = {};
+  __webpack_require__(13)(mark.lib);
+};
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var fs = __webpack_require__(0),
-  csv = __webpack_require__(11);
+  csv = __webpack_require__(14);
 module.exports = function(lib){
   lib.csv = {};
   lib.csv.parse_file = function(filename, cb) {
@@ -470,7 +498,7 @@ module.exports = function(lib){
 
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = require("csv");

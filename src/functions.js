@@ -88,4 +88,5 @@ module.exports = function(mark){
       } else cb('No stage provided');
     }
   };
+  require('./templates/index.js')(mark.functions);
 }

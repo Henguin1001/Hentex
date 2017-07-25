@@ -1,5 +1,5 @@
 var nodeExternals = require('webpack-node-externals');
-
+var path = require('path');
 const config = {
   target: 'node',
   externals: [nodeExternals()],
@@ -11,6 +11,18 @@ const config = {
     path: __dirname,
     filename: '[name].js',
     libraryTarget: 'commonjs2'
+  },
+  module: {
+    rules: [{
+        test: /\.(mt|xml)$/,
+        use: ['markto-loader']
+      }
+    ]
+  },
+  resolveLoader: {
+    alias: {
+      'markto-loader': path.join(__dirname, '/src/markto_loader.js')
+    }
   }
 }
 module.exports = config;
