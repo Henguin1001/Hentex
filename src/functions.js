@@ -77,4 +77,15 @@ module.exports = function(mark){
       mark.lib.csv.stringify(p.data, cb);
     }, async:true}
   };
+  mark.functions.stage = {
+    method:function($, e, p, cb){
+      if(p.attributes.name){
+        if(p.globals.stage === p.attributes.name){
+          cb(null, $(this).text());
+        } else {
+          cb(null, '');
+        }
+      } else cb('No stage provided');
+    }
+  };
 }

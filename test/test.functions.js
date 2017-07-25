@@ -76,6 +76,18 @@ describe('Functions', function() {
       return res.should.eventually.equal('{"user1":{"name":"henry"},"user2":{"name":"henry"}}');
     });
   });
+  describe('stage', function(){
+    it('should not render string', function() {
+      var c = new Compiler();
+      var res = c.render('<stage name=".tex">texdata</stage>', {stage:'.txt'});
+      return res.should.eventually.equal('');
+    });
+    it('should render string', function() {
+      var c = new Compiler();
+      var res = c.render('<stage name=".tex">texdata</stage>', {stage:'.tex'});
+      return res.should.eventually.equal('texdata');
+    });
+  });
   describe('CSV', function(){
     it('should parse a simple csv string', function() {
       var c = new Compiler();
