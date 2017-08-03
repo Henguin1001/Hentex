@@ -327,9 +327,9 @@ module.exports = function(mark){
         this.context[name].template = mark.twig({data:obj.template});
       }
     }
-    renderFile(filename){
+    renderFile(filename, globals = {}){
       var res = fs.readFileSync(filename, 'UTF8');
-      return this.render(res,{});
+      return this.render(res,globals);
     }
   }
   mark.compiler = Compiler;
@@ -358,7 +358,13 @@ module.exports = function(mark){
     method:function($, e, p, cb){
       if(p.attributes.name){
         mark.utils.update_context(mark.functions, p.attributes.name, {
-          template:$(e).text()
+          template:{render:()=>{
+            var c = new mark.compiler();
+            var template = mark.twig({data:$(e).text()});
+            c.render(template.render()).then((res)=>{
+              cb(null, res);
+            }, cb);
+          }}
         });
         cb();
       } else cb("No method name provided");
@@ -451,7 +457,6 @@ module.exports = function(context){
     });
   }
   loadTemplate(__webpack_require__(10));
-
 };
 
 
@@ -459,7 +464,7 @@ module.exports = function(context){
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var twig = __webpack_require__(11).twig; module.exports = [['my_test',twig({data:'"\ntest\n"'})]];
+var twig = __webpack_require__(11).twig; module.exports = [['my_test',twig({data:"\ntest\n"})]];
 
 /***/ }),
 /* 11 */

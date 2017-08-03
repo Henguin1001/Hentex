@@ -33,9 +33,9 @@ module.exports = function(mark){
         this.context[name].template = mark.twig({data:obj.template});
       }
     }
-    renderFile(filename){
+    renderFile(filename, globals = {}){
       var res = fs.readFileSync(filename, 'UTF8');
-      return this.render(res,{});
+      return this.render(res,globals);
     }
   }
   mark.compiler = Compiler;

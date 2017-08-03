@@ -190,6 +190,11 @@ describe('Compiler', function() {
       var res = c.render('<foo/>');
       return res.should.eventually.equal('testdata');
     });
+    it('should render recursive templates', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">foo{{attributes.val}}</template><template name="bar"><foo val="{{1}}"/></template><bar/>');
+      return res.should.eventually.equal('foo1');
+    });
     it('should update templates', function() {
       var c = new Compiler();
       c.update("foo",{

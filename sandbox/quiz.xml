@@ -1,0 +1,18 @@
+<template name="quiz">
+#  {{attributes.title}}
+{{ j(element).text() | trim }}
+</template>
+<template name="problem">
+{% set problem = [random(1000), random(1000)] %}{% set answers = [random(1000), random(1000),random(1000), random(1000)] %}{% set answers = answers|merge({ (random(3)): (problem[0] + problem[1]) })  %}
+**a = {{problem[0]}}**,   **b={{problem[1]}}** &nbsp; *What is a + b ?*
+{% for answer in 'a'..'d' %}
+  * {{answer}})   {{answers[loop.index0]}}
+{% endfor %}
+</template>
+<template name="questions">
+{% for i in 0..(attributes.count) %}{{loop.index}}. <problem/>{% endfor %}
+</template>
+<!-- The main layout -->
+<quiz title="Simple Math Quiz">
+    <questions count="5"/>
+</quiz>

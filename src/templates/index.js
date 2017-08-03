@@ -5,5 +5,4 @@ module.exports = function(context){
     });
   }
   loadTemplate(require('./test.xml'));
-
 };
