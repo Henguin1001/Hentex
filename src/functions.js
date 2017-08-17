@@ -1,6 +1,8 @@
-var fs = require('fs');
+var fs = require('fs'),
+  entities = require('entities');
 module.exports = function(mark){
   mark.functions = {}
+  mark.functions.escape = ["string","template"];
   mark.functions.markto = {
     method:function($,cb){
       cb(null, $(this).text());
@@ -9,8 +11,16 @@ module.exports = function(mark){
   mark.functions.template = {
     method:function($, e, p, cb){
       if(p.attributes.name){
+        var template = mark.twig({data:entities.decodeXML(e.html())});
         mark.utils.update_context(mark.functions, p.attributes.name, {
-          template:$(e).text()
+          template:{
+            render:function(p2, cb2){
+              var compiler = new mark.compiler(p2.context);
+              compiler.render(template.render(p2), p2.globals).then((res)=>cb2(null,res),(err)=>{
+                  cb2(err);
+              });
+            }, async:true
+          }
         });
         cb();
       } else cb("No method name provided");

@@ -71,6 +71,9 @@ module.exports = function(mark){
     }
 
   };
+  mark.utils.escape_method = function($, e, p, cb){
+    return e.html();
+  };
 
 
 };

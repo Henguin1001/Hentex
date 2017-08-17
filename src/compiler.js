@@ -12,8 +12,17 @@ module.exports = function(mark){
       }
     }
     compile(template){
-      if(template.length > 0){
-        var $ = cheerio.load(mark.utils.encapsulate(template), {xmlMode:true});
+      if(template.length == 0 || !(/\S/.test(template))){
+        return {evaluate:()=>
+          new Promise(function(resolve, reject) {
+            resolve(template);
+          })
+        };
+      } else {
+        var $ = cheerio.load(mark.utils.encapsulate(template), {
+          xmlMode:true,
+          decodeEntities:true
+        });
         return new mark.tree($(':root'), this.context, $);
       }
     }

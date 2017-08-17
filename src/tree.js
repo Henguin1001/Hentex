@@ -54,7 +54,7 @@ module.exports = function(mark){
     build(child_data, globals, cb){
       this.update();
       var method_type = this.method;
-      var parameters = Object.assign({}, {globals:globals, child_data:child_data}, this.info);
+      var parameters = Object.assign({}, {globals:globals, child_data:child_data, context:this.ctx}, this.info);
       // Call the method and send response to Template
       // console.log("Call Method: " + method_type);
       mark.utils.call_optional_parameters(method_type.method, this.element, [this.$, this.element, parameters], function(err, method_data){

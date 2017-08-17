@@ -86,7 +86,7 @@ __webpack_require__(4)(mark);
 __webpack_require__(5)(mark);
 __webpack_require__(6)(mark);
 __webpack_require__(8)(mark);
-__webpack_require__(12)(mark);
+__webpack_require__(13)(mark);
 
 module.exports = mark.compiler;
 
@@ -167,7 +167,7 @@ module.exports = function(mark){
     build(child_data, globals, cb){
       this.update();
       var method_type = this.method;
-      var parameters = Object.assign({}, {globals:globals, child_data:child_data}, this.info);
+      var parameters = Object.assign({}, {globals:globals, child_data:child_data, context:this.ctx}, this.info);
       // Call the method and send response to Template
       // console.log("Call Method: " + method_type);
       mark.utils.call_optional_parameters(method_type.method, this.element, [this.$, this.element, parameters], function(err, method_data){
@@ -283,6 +283,9 @@ module.exports = function(mark){
     }
 
   };
+  mark.utils.escape_method = function($, e, p, cb){
+    return e.html();
+  };
 
 
 };
@@ -306,8 +309,17 @@ module.exports = function(mark){
       }
     }
     compile(template){
-      if(template.length > 0){
-        var $ = cheerio.load(mark.utils.encapsulate(template), {xmlMode:true});
+      if(template.length == 0 || !(/\S/.test(template))){
+        return {evaluate:()=>
+          new Promise(function(resolve, reject) {
+            resolve(template);
+          })
+        };
+      } else {
+        var $ = cheerio.load(mark.utils.encapsulate(template), {
+          xmlMode:true,
+          decodeEntities:true
+        });
         return new mark.tree($(':root'), this.context, $);
       }
     }
@@ -346,9 +358,11 @@ module.exports = require("cheerio-iterable");
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var fs = __webpack_require__(0);
+var fs = __webpack_require__(0),
+  entities = __webpack_require__(9);
 module.exports = function(mark){
   mark.functions = {}
+  mark.functions.escape = ["string","template"];
   mark.functions.markto = {
     method:function($,cb){
       cb(null, $(this).text());
@@ -357,8 +371,16 @@ module.exports = function(mark){
   mark.functions.template = {
     method:function($, e, p, cb){
       if(p.attributes.name){
+        var template = mark.twig({data:entities.decodeXML(e.html())});
         mark.utils.update_context(mark.functions, p.attributes.name, {
-          template:$(e).text()
+          template:{
+            render:function(p2, cb2){
+              var compiler = new mark.compiler(p2.context);
+              compiler.render(template.render(p2), p2.globals).then((res)=>cb2(null,res),(err)=>{
+                  cb2(err);
+              });
+            }, async:true
+          }
         });
         cb();
       } else cb("No method name provided");
@@ -448,12 +470,18 @@ module.exports = function(mark){
       } else cb('No length provided');
     }
   };
-  __webpack_require__(9)(mark.functions);
+  __webpack_require__(10)(mark.functions);
 }
 
 
 /***/ }),
 /* 9 */
+/***/ (function(module, exports) {
+
+module.exports = require("entities");
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = function(context){
@@ -462,38 +490,38 @@ module.exports = function(context){
       context[e[0]] = Object.assign({method:(cb)=>{cb()}}, context[e[0]], {template:e[1]});
     });
   }
-  loadTemplate(__webpack_require__(10));
+  loadTemplate(__webpack_require__(11));
 };
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var twig = __webpack_require__(11).twig; module.exports = [['my_test',twig({data:"\ntest\n"})]];
+var twig = __webpack_require__(12).twig; module.exports = [['my_test',twig({data:"\ntest\n"})]];
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 module.exports = require("twig");
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = function(mark){
   mark.lib = {};
-  __webpack_require__(13)(mark.lib);
+  __webpack_require__(14)(mark.lib);
 };
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var fs = __webpack_require__(0),
-  csv = __webpack_require__(14);
+  csv = __webpack_require__(15);
 module.exports = function(lib){
   lib.csv = {};
   lib.csv.parse_file = function(filename, cb) {
@@ -509,7 +537,7 @@ module.exports = function(lib){
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 module.exports = require("csv");

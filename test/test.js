@@ -205,10 +205,10 @@ describe('Compiler', function() {
       var res = c.render('<template name="foo">foo{{attributes.val}}</template><template name="bar">{% for i in 0..2%}<foo val="{{i}}"/>{% endfor %}</template><bar/>');
       return res.should.eventually.equal('foo0foo1foo2');
     });
-    it('should render recursive templates', function() {
+    it('should render disordered templates', function() {
       var c = new Compiler();
-      var res = c.render('<template name="foo">{{random(5)+attributes.offset}}</template><template name="bar">{% for i in [0,5] %}<foo offset="{{i}}"/>{% endfor %}</template><bar/>');
-      return res.should.eventually.equal('foo0foo1foo2');
+      var res = c.render('<template name="bar"><foo val="{{1}}"/></template><template name="foo">foo{{attributes.val}}</template><bar/>');
+      return res.should.eventually.equal('foo1');
     });
     it('should update templates', function() {
       var c = new Compiler();
@@ -245,10 +245,11 @@ describe('Compiler', function() {
           cb(null, "bar");
         }
       });
+
       var res = c.render('<template name="foo">{% if globals.test %}<bar/>{% endif %}</template><foo/>', {test:false});
       return res.should.eventually.equal('');
     });
-    it('should prevent template from running', function() {
+    it('should allow template to run', function() {
       var c = new Compiler();
       c.extend("bar",{
         method:function(cb){
@@ -269,6 +270,18 @@ describe('Compiler', function() {
       });
       var res = c.renderFile('./test/template.xml');
       return res.should.eventually.equal('testdata\n');
+    });
+  });
+  describe('Formatting', function() {
+    it('should decode entities',function(){
+      var c = new Compiler();
+      var res = c.render('<template name="test">'+"''</template><test/>");
+      return res.should.eventually.equal("''");
+    });
+    it('should decode entities',function(){
+      var c = new Compiler();
+      var res = c.render('<template name="test">{% for ans in '+"'a'..'d'" +"%}{{ans}}{% endfor %}</template><test/>");
+      return res.should.eventually.equal("abcd");
     });
   });
 });
