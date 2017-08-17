@@ -88,5 +88,17 @@ module.exports = function(mark){
       } else cb('No stage provided');
     }
   };
+  mark.functions.array = {
+    method:function($, e, p, cb){
+      if(p.attributes.length){
+        if(p.attributes.random){
+          var output = Array(p.attributes.length).map(()=>Math.floor(Math.random()*p.attributes.random));
+          cb(null, output);
+        } else {
+          cb(null, Array(p.attributes.length));
+        }
+      } else cb('No length provided');
+    }
+  };
   require('./templates/index.js')(mark.functions);
 }

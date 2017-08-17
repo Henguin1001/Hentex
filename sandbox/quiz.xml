@@ -10,9 +10,10 @@
 {% endfor %}
 </template>
 <template name="questions">
-{% for i in 0..(attributes.count) %}{{loop.index}}. <problem/>{% endfor %}
+{% for i in 0..(attributes.count-1) %}{{loop.index}}. <problem/>{% endfor %}
 </template>
+
 <!-- The main layout -->
-<quiz title="Simple Math Quiz">
+<quiz title="Simple Quiz">
     <questions count="5"/>
 </quiz>

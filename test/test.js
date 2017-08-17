@@ -195,6 +195,21 @@ describe('Compiler', function() {
       var res = c.render('<template name="foo">foo{{attributes.val}}</template><template name="bar"><foo val="{{1}}"/></template><bar/>');
       return res.should.eventually.equal('foo1');
     });
+    it('should render recursive templates', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">foo{{attributes.val}}</template><template name="bar"><foo val="{{1}}"/><foo val="{{2}}"/></template><bar/>');
+      return res.should.eventually.equal('foo1foo2');
+    });
+    it('should render recursive templates', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">foo{{attributes.val}}</template><template name="bar">{% for i in 0..2%}<foo val="{{i}}"/>{% endfor %}</template><bar/>');
+      return res.should.eventually.equal('foo0foo1foo2');
+    });
+    it('should render recursive templates', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">{{random(5)+attributes.offset}}</template><template name="bar">{% for i in [0,5] %}<foo offset="{{i}}"/>{% endfor %}</template><bar/>');
+      return res.should.eventually.equal('foo0foo1foo2');
+    });
     it('should update templates', function() {
       var c = new Compiler();
       c.update("foo",{

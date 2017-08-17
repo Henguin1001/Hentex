@@ -358,13 +358,7 @@ module.exports = function(mark){
     method:function($, e, p, cb){
       if(p.attributes.name){
         mark.utils.update_context(mark.functions, p.attributes.name, {
-          template:{render:()=>{
-            var c = new mark.compiler();
-            var template = mark.twig({data:$(e).text()});
-            c.render(template.render()).then((res)=>{
-              cb(null, res);
-            }, cb);
-          }}
+          template:$(e).text()
         });
         cb();
       } else cb("No method name provided");
@@ -440,6 +434,18 @@ module.exports = function(mark){
           cb(null, '');
         }
       } else cb('No stage provided');
+    }
+  };
+  mark.functions.array = {
+    method:function($, e, p, cb){
+      if(p.attributes.length){
+        if(p.attributes.random){
+          var output = Array(p.attributes.length).map(()=>Math.floor(Math.random()*p.attributes.random));
+          cb(null, output);
+        } else {
+          cb(null, Array(p.attributes.length));
+        }
+      } else cb('No length provided');
     }
   };
   __webpack_require__(9)(mark.functions);
@@ -734,6 +740,21 @@ describe('Compiler', function() {
       var c = new Compiler();
       var res = c.render('<template name="foo">foo{{attributes.val}}</template><template name="bar"><foo val="{{1}}"/></template><bar/>');
       return res.should.eventually.equal('foo1');
+    });
+    it('should render recursive templates', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">foo{{attributes.val}}</template><template name="bar"><foo val="{{1}}"/><foo val="{{2}}"/></template><bar/>');
+      return res.should.eventually.equal('foo1foo2');
+    });
+    it('should render recursive templates', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">foo{{attributes.val}}</template><template name="bar">{% for i in 0..2%}<foo val="{{i}}"/>{% endfor %}</template><bar/>');
+      return res.should.eventually.equal('foo0foo1foo2');
+    });
+    it('should render recursive templates', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">{{random(5)+attributes.offset}}</template><template name="bar">{% for i in [0,5] %}<foo offset="{{i}}"/>{% endfor %}</template><bar/>');
+      return res.should.eventually.equal('foo0foo1foo2');
     });
     it('should update templates', function() {
       var c = new Compiler();
