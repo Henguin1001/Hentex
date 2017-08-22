@@ -1,0 +1,14 @@
+<template name="equation"> \[ {{ j(element).text() }} \]</template>
+<template name="prompt">What is <equation> sdasdas </equation></template>
+---- \[ \[ sdasda \] \]
+DONE
+
+Include Tag doesn't have scope
+
+Piping data between templates
+
+Inline Testing
+
+Equation Parser
+
+Request module

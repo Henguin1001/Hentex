@@ -115,27 +115,33 @@ var Promise = __webpack_require__(1);
 
 module.exports = function(mark){
   class Node {
-    constructor(element, ctx, $){
+    constructor(element, ctx, $, escape=0){
       this.element = element;
       this.ctx = ctx;
       this.$ = $;
       this.scope = this;
       this.update();
-
+      this.escape = escape;
       var initializeChild = this.initializeChild;
       // Only compile further if the element is not a string
       // or has the attribute block
       if(this.name != 'string' && !this.info.attributes.block){
-        this.children = element.children().map(function(e){
-          return initializeChild(e, ctx, $);
-        });
+        if(mark.functions.escape.includes(this.name)){
+          this.children = element.children().map(function(e){
+            return initializeChild(e, ctx, $, 1);
+          });
+        } else {
+          this.children = element.children().map(function(e){
+            return initializeChild(e, ctx, $, 0);
+          });
+        }
       } else {
         this.children = [];
         this.info.leaf = true;
       }
     }
-    initializeChild(element, ctx, $){
-      return new Node($(element), ctx, $);
+    initializeChild(element, ctx, $, escape){
+      return new Node($(element), ctx, $, escape);
     }
     update(){
       this.info = mark.utils.get_element_info(this.element, this.$);
@@ -170,36 +176,40 @@ module.exports = function(mark){
       var parameters = Object.assign({}, {globals:globals, child_data:child_data, context:this.ctx}, this.info);
       // Call the method and send response to Template
       // console.log("Call Method: " + method_type);
-      mark.utils.call_optional_parameters(method_type.method, this.element, [this.$, this.element, parameters], function(err, method_data){
-        if(err) cb(err)
-        else {
-          parameters.data = method_data;
-          parameters.element.data(method_data);
-          if(method_type.template){
-            if(method_type.template.async){
-              var template_output = method_type.template.render(parameters, function(err, template_output){
-                if(!err){
-                  parameters.element.empty();
-                  parameters.element.text(template_output);
-                  cb(null, template_output);
-                } else cb(err);
-              });
+      if(this.escape != 1){
+        mark.utils.call_optional_parameters(method_type.method, this.element, [this.$, this.element, parameters], function(err, method_data){
+          if(err) cb(err)
+          else {
+            parameters.data = method_data;
+            parameters.element.data(method_data);
+            if(method_type.template){
+              if(method_type.template.async){
+                var template_output = method_type.template.render(parameters, function(err, template_output){
+                  if(!err){
+                    parameters.element.empty();
+                    parameters.element.text(template_output);
+                    cb(null, template_output);
+                  } else cb(err);
+                });
+              } else {
+                var template_output = method_type.template.render(parameters);
+                parameters.element.empty();
+                parameters.element.text(template_output);
+                cb(null, template_output);
+              }
             } else {
-              var template_output = method_type.template.render(parameters);
-              parameters.element.empty();
-              parameters.element.text(template_output);
-              cb(null, template_output);
+              if (typeof method_data === 'string'){
+                parameters.element.text(method_data);
+              } else {
+                parameters.element.text(JSON.stringify(method_data));
+              }
+              cb(null, method_data);
             }
-          } else {
-            if (typeof method_data === 'string'){
-              parameters.element.text(method_data);
-            } else {
-              parameters.element.text(JSON.stringify(method_data));
-            }
-            cb(null, method_data);
           }
-        }
-      });
+        });
+      } else {
+        cb(null, "");
+      }
     }
   }
   mark.tree = Node;
@@ -372,6 +382,7 @@ module.exports = function(mark){
     method:function($, e, p, cb){
       if(p.attributes.name){
         var template = mark.twig({data:entities.decodeXML(e.html())});
+        // console.log(entities.decodeXML(e.html()));
         mark.utils.update_context(mark.functions, p.attributes.name, {
           template:{
             render:function(p2, cb2){
@@ -415,7 +426,14 @@ module.exports = function(mark){
   };
   mark.functions.json = {
     method:function($, e, p, cb){
-      if(p.attributes.stringify !== undefined ||p.attributes.encode !== undefined){
+      if(p.attributes.src !== undefined){
+        try {
+          var result = JSON.parse(fs.readFileSync(p.attributes.src, 'UTF8'));
+          cb(null,result);
+        } catch (e) {
+          cb(e);
+        }
+      } else if(p.attributes.stringify !== undefined ||p.attributes.encode !== undefined){
         try {
             var data = mark.utils.object_from_tree($, e);
             cb(null, JSON.stringify(data));
@@ -426,6 +444,27 @@ module.exports = function(mark){
         try {
           var result = JSON.parse($(this).text());
           cb(null,result);
+        } catch (e) {
+          cb(e);
+        }
+      } else cb('No source provided');
+    }
+  };
+  mark.functions.config = {
+    method:function($, e, p, cb){
+      if(p.attributes.src !== undefined){
+        try {
+          var result = JSON.parse(fs.readFileSync(p.attributes.src, 'UTF8'));
+          p.globals = Object.assign(p.globals, result);
+          cb(null,"");
+        } catch (e) {
+          cb(e);
+        }
+      } else if($(this).text().length > 0){
+        try {
+          var result = JSON.parse($(this).text());
+          p.globals = Object.assign(p.globals, result); 
+          cb(null,"");
         } catch (e) {
           cb(e);
         }
@@ -784,11 +823,6 @@ describe('Compiler', function() {
       var res = c.render('<template name="bar"><foo val="{{1}}"/></template><template name="foo">foo{{attributes.val}}</template><bar/>');
       return res.should.eventually.equal('foo1');
     });
-    // it('should render recursive templates', function() {
-    //   var c = new Compiler();
-    //   var res = c.render('<template name="foo">{{random(5)+attributes.offset}}</template><template name="bar">{% for i in [0,5] %}<foo offset="{{i}}"/>{% endfor %}</template><bar/>');
-    //   return res.should.eventually.equal('foo0foo1foo2');
-    // });
     it('should update templates', function() {
       var c = new Compiler();
       c.update("foo",{
@@ -904,6 +938,16 @@ describe('Functions', function() {
       var res = c.render('<template name="foo">foo</template><template name="bar">bar</template>').then(()=>c.render('<foo/><bar/>'));
       return res.should.eventually.equal('foobar');
     });
+    it('should not be redundant', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">{{ "["~ element.text()~ "]"}}</template><template name="bar"><foo>bar</foo></template><bar/>');
+      return res.should.eventually.equal('[bar]');
+    });
+    it('should not be redundant', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">\\[{{element.text()}}\\]</template><template name="bar"><foo>bar</foo></template><bar/>');
+      return res.should.eventually.equal('\\[bar\\]');
+    });
   });
 
   describe('set', function(){
@@ -924,6 +968,11 @@ describe('Functions', function() {
       var res = c.render('<template name="foo">foo</template>').then(()=>c.render('<include src="./test/template.xml"/>'));
       return res.should.eventually.equal('foo\n');
     });
+    it('should update context', function() {
+      var c = new Compiler();
+      var res = c.render('<include src="./test/template2.xml"/><template name="bar"><foo value="hello"/></template><bar/>');
+      return res.should.eventually.equal('\nhello');
+    });
   });
   describe('json', function(){
     it('should parse data', function() {
@@ -933,7 +982,6 @@ describe('Functions', function() {
     });
     it('should stringify data', function() {
       var c = new Compiler();
-      // console.log("encode now");
       var res = c.render('<json encode><json decode>{"name":"henry"}</json></json>');
       return res.should.eventually.equal('{"name":"henry"}');
     });
@@ -946,6 +994,23 @@ describe('Functions', function() {
       var c = new Compiler();
       var res = c.render('<json encode><json id="user1" decode>{"name":"henry"}</json><json id="user2" decode>{"name":"henry"}</json></json>');
       return res.should.eventually.equal('{"user1":{"name":"henry"},"user2":{"name":"henry"}}');
+    });
+    it('should parse a json file', function() {
+      var c = new Compiler();
+      var res = c.render('<json src="./test/test_data.json"/>');
+      return res.should.eventually.equal('{"name":"joe","age":25}');
+    });
+  });
+  describe('config', function(){
+    it('should get config from file', function() {
+      var c = new Compiler();
+      var res = c.render('<config src="./test/test_data.json"/><template name="test">{{globals.name}}</template><test/>');
+      return res.should.eventually.equal('joe');
+    });
+    it('should get config from json', function() {
+      var c = new Compiler();
+      var res = c.render('<config>{"age":25}</config><template name="test">{{globals.age}}</template><test/>');
+      return res.should.eventually.equal('25');
     });
   });
   describe('stage', function(){

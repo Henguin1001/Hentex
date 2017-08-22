@@ -32,6 +32,16 @@ describe('Functions', function() {
       var res = c.render('<template name="foo">foo</template><template name="bar">bar</template>').then(()=>c.render('<foo/><bar/>'));
       return res.should.eventually.equal('foobar');
     });
+    it('should not be redundant', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">{{ "["~ element.text()~ "]"}}</template><template name="bar"><foo>bar</foo></template><bar/>');
+      return res.should.eventually.equal('[bar]');
+    });
+    it('should not be redundant', function() {
+      var c = new Compiler();
+      var res = c.render('<template name="foo">\\[{{element.text()}}\\]</template><template name="bar"><foo>bar</foo></template><bar/>');
+      return res.should.eventually.equal('\\[bar\\]');
+    });
   });
 
   describe('set', function(){
@@ -52,6 +62,11 @@ describe('Functions', function() {
       var res = c.render('<template name="foo">foo</template>').then(()=>c.render('<include src="./test/template.xml"/>'));
       return res.should.eventually.equal('foo\n');
     });
+    it('should update context', function() {
+      var c = new Compiler();
+      var res = c.render('<include src="./test/template2.xml"/><template name="bar"><foo value="hello"/></template><bar/>');
+      return res.should.eventually.equal('\nhello');
+    });
   });
   describe('json', function(){
     it('should parse data', function() {
@@ -61,7 +76,6 @@ describe('Functions', function() {
     });
     it('should stringify data', function() {
       var c = new Compiler();
-      // console.log("encode now");
       var res = c.render('<json encode><json decode>{"name":"henry"}</json></json>');
       return res.should.eventually.equal('{"name":"henry"}');
     });
@@ -74,6 +88,23 @@ describe('Functions', function() {
       var c = new Compiler();
       var res = c.render('<json encode><json id="user1" decode>{"name":"henry"}</json><json id="user2" decode>{"name":"henry"}</json></json>');
       return res.should.eventually.equal('{"user1":{"name":"henry"},"user2":{"name":"henry"}}');
+    });
+    it('should parse a json file', function() {
+      var c = new Compiler();
+      var res = c.render('<json src="./test/test_data.json"/>');
+      return res.should.eventually.equal('{"name":"joe","age":25}');
+    });
+  });
+  describe('config', function(){
+    it('should get config from file', function() {
+      var c = new Compiler();
+      var res = c.render('<config src="./test/test_data.json"/><template name="test">{{globals.name}}</template><test/>');
+      return res.should.eventually.equal('joe');
+    });
+    it('should get config from json', function() {
+      var c = new Compiler();
+      var res = c.render('<config>{"age":25}</config><template name="test">{{globals.age}}</template><test/>');
+      return res.should.eventually.equal('25');
     });
   });
   describe('stage', function(){

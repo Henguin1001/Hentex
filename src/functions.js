@@ -12,6 +12,7 @@ module.exports = function(mark){
     method:function($, e, p, cb){
       if(p.attributes.name){
         var template = mark.twig({data:entities.decodeXML(e.html())});
+        // console.log(entities.decodeXML(e.html()));
         mark.utils.update_context(mark.functions, p.attributes.name, {
           template:{
             render:function(p2, cb2){
@@ -55,7 +56,14 @@ module.exports = function(mark){
   };
   mark.functions.json = {
     method:function($, e, p, cb){
-      if(p.attributes.stringify !== undefined ||p.attributes.encode !== undefined){
+      if(p.attributes.src !== undefined){
+        try {
+          var result = JSON.parse(fs.readFileSync(p.attributes.src, 'UTF8'));
+          cb(null,result);
+        } catch (e) {
+          cb(e);
+        }
+      } else if(p.attributes.stringify !== undefined ||p.attributes.encode !== undefined){
         try {
             var data = mark.utils.object_from_tree($, e);
             cb(null, JSON.stringify(data));
@@ -66,6 +74,27 @@ module.exports = function(mark){
         try {
           var result = JSON.parse($(this).text());
           cb(null,result);
+        } catch (e) {
+          cb(e);
+        }
+      } else cb('No source provided');
+    }
+  };
+  mark.functions.config = {
+    method:function($, e, p, cb){
+      if(p.attributes.src !== undefined){
+        try {
+          var result = JSON.parse(fs.readFileSync(p.attributes.src, 'UTF8'));
+          p.globals = Object.assign(p.globals, result);
+          cb(null,"");
+        } catch (e) {
+          cb(e);
+        }
+      } else if($(this).text().length > 0){
+        try {
+          var result = JSON.parse($(this).text());
+          p.globals = Object.assign(p.globals, result); 
+          cb(null,"");
         } catch (e) {
           cb(e);
         }
